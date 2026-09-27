@@ -1,0 +1,900 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/webp" href="/images/flight_icon.webp">
+    <title>FlashFlight | Your flight assistant</title>
+    <style>
+        :root {
+            --ink: #172338;
+            --muted: #69768b;
+            --paper: #f7f9fc;
+            --line: #dce4ee;
+            --blue: #1769e0;
+            --blue-dark: #0d3e94;
+            --mint: #c9f3e8;
+            --yellow: #ffd76a;
+            font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            color: var(--ink);
+            background: var(--paper);
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .shell {
+            width: min(1120px, calc(100% - 40px));
+            margin: 0 auto;
+        }
+
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            background: rgba(247, 249, 252, .92);
+            border-bottom: 1px solid rgba(220, 228, 238, .8);
+            backdrop-filter: blur(12px);
+        }
+
+        .nav {
+            min-height: 74px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.15rem;
+            font-weight: 800;
+            letter-spacing: .02em;
+        }
+
+        .brand-mark {
+            width: 36px;
+            height: 36px;
+            display: grid;
+            place-items: center;
+            color: white;
+            background: var(--blue);
+            border-radius: 11px;
+        }
+
+        .brand-mark svg {
+            width: 21px;
+        }
+
+        nav {
+            display: flex;
+            gap: 25px;
+            color: var(--muted);
+            font-size: .9rem;
+        }
+
+        nav a:hover {
+            color: var(--blue);
+        }
+
+        .nav-button,
+        .primary-button {
+            border: 0;
+            border-radius: 8px;
+            padding: 12px 17px;
+            color: white;
+            background: var(--blue);
+            font: inherit;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 8px 18px rgba(23, 105, 224, .2);
+        }
+
+        .nav-button:hover,
+        .primary-button:hover {
+            background: var(--blue-dark);
+            transform: translateY(-1px);
+        }
+
+        .hero {
+            padding: 78px 0 64px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .hero:after {
+            content: "";
+            position: absolute;
+            width: 410px;
+            height: 410px;
+            right: -120px;
+            top: 35px;
+            border-radius: 50%;
+            background: var(--mint);
+            opacity: .65;
+            z-index: -1;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1.1fr .9fr;
+            align-items: center;
+            gap: 70px;
+        }
+
+        .eyebrow {
+            color: var(--blue);
+            font-size: .76rem;
+            font-weight: 800;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            max-width: 650px;
+            margin: 15px 0 19px;
+            font-size: clamp(2.8rem, 6vw, 5.25rem);
+            line-height: .98;
+            letter-spacing: -.055em;
+        }
+
+        .hero-copy {
+            max-width: 530px;
+            color: var(--muted);
+            font-size: 1.08rem;
+            line-height: 1.7;
+        }
+
+        .hero-actions {
+            display: flex;
+            align-items: center;
+            gap: 17px;
+            margin-top: 30px;
+        }
+
+        .text-link {
+            color: var(--blue);
+            font-size: .9rem;
+            font-weight: 800;
+        }
+
+        .text-link:hover {
+            text-decoration: underline;
+        }
+
+        .flight-card {
+            position: relative;
+            padding: 27px;
+            min-height: 290px;
+            color: white;
+            background: var(--blue-dark);
+            border-radius: 16px;
+            box-shadow: 20px 24px 0 var(--yellow);
+            transform: rotate(2deg);
+        }
+
+        .flight-card:before {
+            content: "";
+            position: absolute;
+            inset: 13px;
+            border: 1px solid rgba(255, 255, 255, .25);
+            border-radius: 11px;
+            pointer-events: none;
+        }
+
+        .card-top,
+        .route,
+        .card-bottom {
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-top {
+            color: #b8d4ff;
+            font-size: .72rem;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+        }
+
+        .route {
+            align-items: end;
+            margin-top: 56px;
+        }
+
+        .airport {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: .9;
+            letter-spacing: -.07em;
+        }
+
+        .city {
+            margin-top: 8px;
+            color: #b8d4ff;
+            font-size: .75rem;
+        }
+
+        .plane-line {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--yellow);
+        }
+
+        .plane-line span {
+            width: 45px;
+            border-top: 1px dashed #b8d4ff;
+        }
+
+        .plane-line svg {
+            width: 21px;
+            transform: rotate(45deg);
+        }
+
+        .card-bottom {
+            margin-top: 43px;
+            color: #c7d8f4;
+            font-size: .78rem;
+        }
+
+        .visual-section {
+            padding: 18px 0 72px;
+        }
+
+        .visual-grid {
+            display: grid;
+            grid-template-columns: 1.35fr .85fr .85fr;
+            gap: 16px;
+        }
+
+        .visual-card {
+            position: relative;
+            min-height: 270px;
+            overflow: hidden;
+            border-radius: 12px;
+            background: var(--blue-dark);
+            color: white;
+        }
+
+        .visual-card:first-child {
+            grid-row: span 2;
+            min-height: 560px;
+        }
+
+        .visual-card img {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: cover;
+            transition: transform .35s ease;
+        }
+
+        .visual-card:hover img {
+            transform: scale(1.04);
+        }
+
+        .visual-card:after {
+            content: "";
+            position: absolute;
+            inset: 35% 0 0;
+            background: linear-gradient(transparent, rgba(13, 62, 148, .9));
+        }
+
+        .visual-card-content {
+            position: absolute;
+            z-index: 1;
+            right: 20px;
+            bottom: 18px;
+            left: 20px;
+        }
+
+        .visual-card-content h3 {
+            margin: 0 0 5px;
+            font-size: 1.15rem;
+        }
+
+        .visual-card-content p {
+            margin: 0;
+            color: #d8e6ff;
+            font-size: .82rem;
+        }
+
+        .visual-card-content a {
+            color: var(--yellow);
+            font-weight: 800;
+        }
+
+        .section {
+            padding: 72px 0;
+        }
+
+        .section-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            margin: 7px 0 0;
+            font-size: clamp(1.8rem, 3vw, 2.7rem);
+            letter-spacing: -.04em;
+        }
+
+        .section-heading p {
+            max-width: 390px;
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .step {
+            padding: 25px;
+            min-height: 195px;
+            background: white;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+        }
+
+        .step-number {
+            display: grid;
+            place-items: center;
+            width: 33px;
+            height: 33px;
+            margin-bottom: 27px;
+            color: white;
+            background: var(--blue);
+            border-radius: 50%;
+            font-weight: 800;
+        }
+
+        .step h3 {
+            margin: 0 0 8px;
+            font-size: 1.05rem;
+        }
+
+        .step p {
+            margin: 0;
+            color: var(--muted);
+            font-size: .9rem;
+            line-height: 1.6;
+        }
+
+        .tools {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .tool {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            padding: 21px;
+            background: white;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+        }
+
+        .tool-icon {
+            flex: 0 0 45px;
+            height: 45px;
+            display: grid;
+            place-items: center;
+            border-radius: 9px;
+            background: #e6f0ff;
+            color: var(--blue);
+        }
+
+        .tool-icon svg {
+            width: 23px;
+        }
+
+        .tool h3 {
+            margin: 0 0 5px;
+            font-size: 1rem;
+        }
+
+        .tool p {
+            margin: 0;
+            color: var(--muted);
+            font-size: .85rem;
+            line-height: 1.5;
+        }
+
+        .tool a {
+            color: var(--blue);
+            font-weight: 700;
+        }
+
+        footer {
+            padding: 27px 0;
+            border-top: 1px solid var(--line);
+            color: var(--muted);
+            font-size: .82rem;
+        }
+
+        .footer-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .assistant {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            z-index: 10;
+            width: min(360px, calc(100vw - 28px));
+        }
+
+        .assistant-panel {
+            display: none;
+            overflow: hidden;
+            margin-bottom: 12px;
+            background: white;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            box-shadow: 0 18px 45px rgba(23, 35, 56, .18);
+        }
+
+        .assistant.is-open .assistant-panel {
+            display: block;
+        }
+
+        .assistant-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 17px;
+            color: white;
+            background: var(--blue-dark);
+        }
+
+        .assistant-header strong {
+            display: block;
+            font-size: .95rem;
+        }
+
+        .assistant-header span {
+            display: block;
+            margin-top: 3px;
+            color: #b8d4ff;
+            font-size: .72rem;
+        }
+
+        .assistant-close {
+            padding: 4px 7px;
+            border: 0;
+            color: white;
+            background: transparent;
+            font-size: 1.3rem;
+            cursor: pointer;
+        }
+
+        .assistant-messages {
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+            height: 285px;
+            padding: 16px;
+            overflow-y: auto;
+            background: var(--paper);
+        }
+
+        .assistant-message {
+            max-width: 86%;
+            padding: 10px 12px;
+            border-radius: 10px;
+            font-size: .84rem;
+            line-height: 1.45;
+        }
+
+        .assistant-message.bot {
+            align-self: flex-start;
+            color: var(--ink);
+            background: white;
+            border: 1px solid var(--line);
+        }
+
+        .assistant-message.user {
+            align-self: flex-end;
+            color: white;
+            background: var(--blue);
+        }
+
+        .assistant-message a {
+            display: inline-block;
+            margin-top: 8px;
+            color: var(--blue);
+            font-weight: 700;
+        }
+
+        .assistant-form {
+            display: flex;
+            gap: 8px;
+            padding: 11px;
+            border-top: 1px solid var(--line);
+            background: white;
+        }
+
+        .assistant-form input {
+            min-width: 0;
+            flex: 1;
+            padding: 10px 11px;
+            border: 1px solid var(--line);
+            border-radius: 7px;
+            color: var(--ink);
+            font: inherit;
+        }
+
+        .assistant-form button,
+        .assistant-launcher {
+            border: 0;
+            color: white;
+            background: var(--blue);
+            font: inherit;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .assistant-form button {
+            padding: 0 14px;
+            border-radius: 7px;
+        }
+
+        .assistant-launcher {
+            display: block;
+            margin-left: auto;
+            padding: 12px 17px;
+            border-radius: 8px;
+            box-shadow: 0 8px 18px rgba(23, 105, 224, .2);
+        }
+
+        .assistant-form button:hover,
+        .assistant-launcher:hover {
+            background: var(--blue-dark);
+        }
+
+        @media (max-width: 760px) {
+            .shell {
+                width: min(100% - 28px, 560px);
+            }
+
+            nav {
+                display: none;
+            }
+
+            .hero {
+                padding: 54px 0 55px;
+            }
+
+            .hero-grid,
+            .steps,
+            .tools,
+            .visual-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .hero:after {
+                width: 250px;
+                height: 250px;
+                right: -120px;
+                top: 25px;
+            }
+
+            h1 {
+                font-size: 3.2rem;
+            }
+
+            .flight-card {
+                transform: rotate(1deg);
+                box-shadow: 10px 13px 0 var(--yellow);
+            }
+
+            .visual-section {
+                padding-top: 0;
+            }
+
+            .visual-card:first-child {
+                grid-row: auto;
+                min-height: 390px;
+            }
+
+            .section {
+                padding: 53px 0;
+            }
+
+            .section-heading,
+            .footer-row {
+                display: block;
+            }
+
+            .section-heading p {
+                margin-top: 15px;
+            }
+
+            .footer-row span {
+                display: block;
+                margin-top: 7px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="shell nav">
+            <a class="brand" href="#top" aria-label="FlashFlight home">
+                <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M3 12h18M13 5l7 7-7 7M3 8l4 4-4 4" />
+                    </svg></span>
+                <span>FlashFlight</span>
+            </a>
+            <nav aria-label="Main navigation">
+                <a href="#how-it-works">How it works</a>
+                <a href="#services">Services</a>
+                <a href="https://karachiairport.com.pk/schedule.aspx" target="_blank" rel="noreferrer">Live schedule</a>
+            </nav>
+            <button class="nav-button" type="button" onclick="openAgent()">Open assistant</button>
+        </div>
+    </header>
+
+    <main id="top">
+        <section class="hero">
+            <div class="shell hero-grid">
+                <div>
+                    <div class="eyebrow">A simpler way to fly</div>
+                    <h1>Ask once.<br>Fly smarter.</h1>
+                    <p class="hero-copy">FlashFlight is a conversational flight assistant for bookings, schedules,
+                        routes, classes, and seats. Tell the assistant what you need in plain language.</p>
+                    <div class="hero-actions">
+                        <button class="primary-button" type="button" onclick="openAgent()">Talk to the
+                            assistant</button>
+                        <a class="text-link" href="#how-it-works">See how it works &rarr;</a>
+                    </div>
+                </div>
+                <div class="flight-card" aria-label="Example flight from Karachi to Dubai">
+                    <div class="card-top"><span>FlashFlight / 001</span><span>Ready to go</span></div>
+                    <div class="route">
+                        <div>
+                            <div class="airport">KHI</div>
+                            <div class="city">Karachi</div>
+                        </div>
+                        <div class="plane-line"><span></span><svg viewBox="0 0 24 24" fill="currentColor">
+                                <path
+                                    d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5L21 16Z" />
+                            </svg><span></span></div>
+                        <div>
+                            <div class="airport">DXB</div>
+                            <div class="city">Dubai</div>
+                        </div>
+                    </div>
+                    <div class="card-bottom"><span>One conversation</span><span>All the details</span></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="visual-section" aria-label="FlashFlight services">
+            <div class="shell visual-grid">
+                <article class="visual-card">
+                    <img src="images/book.jpg" alt="Airplane cabin seats" loading="lazy">
+                    <div class="visual-card-content">
+                        <h3>Plan your journey</h3>
+                        <p>Ask the assistant about bookings, seats, and travel classes.</p>
+                    </div>
+                </article>
+                <article class="visual-card">
+                    <img src="images/sch.jpg" alt="Airport departure and arrival boards" loading="lazy">
+                    <div class="visual-card-content">
+                        <h3>Check schedules</h3>
+                        <p><a href="https://karachiairport.com.pk/schedule.aspx" target="_blank" rel="noreferrer">View
+                                live schedule &rarr;</a></p>
+                    </div>
+                </article>
+                <article class="visual-card">
+                    <img src="images/land.jpg" alt="Aircraft on a runway" loading="lazy">
+                    <div class="visual-card-content">
+                        <h3>Know your flight</h3>
+                        <p>Get help with domestic and international flight questions.</p>
+                    </div>
+                </article>
+                <article class="visual-card">
+                    <img src="images/flight.png" alt="FlashFlight aircraft icon" loading="lazy">
+                    <div class="visual-card-content">
+                        <h3>Ready when you are</h3>
+                        <p>Start a conversation with FlashFlight.</p>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="section" id="how-it-works">
+            <div class="shell">
+                <div class="section-heading">
+                    <div>
+                        <div class="eyebrow">The flow</div>
+                        <h2>Three steps to your answer.</h2>
+                    </div>
+                    <p>The assistant guides the conversation. You do not need to know an intent name or fill out a form
+                        first.</p>
+                </div>
+                <div class="steps">
+                    <article class="step">
+                        <div class="step-number">1</div>
+                        <h3>Start a conversation</h3>
+                        <p>Open the assistant and say hello, or ask directly about a booking or schedule.</p>
+                    </article>
+                    <article class="step">
+                        <div class="step-number">2</div>
+                        <h3>Choose a path</h3>
+                        <p>FlashFlight offers booking help and a schedule link. Follow-up prompts cover trip type,
+                            flights, classes, and seats.</p>
+                    </article>
+                    <article class="step">
+                        <div class="step-number">3</div>
+                        <h3>Get the next action</h3>
+                        <p>The agent responds with guidance or a rich link, such as the airport schedule page, inside
+                            the chat.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="services">
+            <div class="shell">
+                <div class="section-heading">
+                    <div>
+                        <div class="eyebrow">Quick access</div>
+                        <h2>What can I ask?</h2>
+                    </div>
+                </div>
+                <div class="tools">
+                    <article class="tool">
+                        <div class="tool-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M3 10h18M5 6h14a2 2 0 0 1 2 2v10H3V8a2 2 0 0 1 2-2ZM7 14h4" />
+                            </svg></div>
+                        <div>
+                            <h3>Flight bookings</h3>
+                            <p>Ask about domestic or international travel, available flights, classes, and seats.</p>
+                        </div>
+                    </article>
+                    <article class="tool">
+                        <div class="tool-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="12" cy="12" r="8" />
+                                <path d="M12 7v5l3 2" />
+                            </svg></div>
+                        <div>
+                            <h3>Flight schedules</h3>
+                            <p>Get the official Karachi airport schedule in one click. <a
+                                    href="https://karachiairport.com.pk/schedule.aspx" target="_blank"
+                                    rel="noreferrer">Open schedule &rarr;</a></p>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="shell footer-row"><strong>FlashFlight</strong><span>Conversational flight information, powered by
+                Dialogflow.</span></div>
+    </footer>
+
+    <aside class="assistant" id="assistant" aria-label="FlashFlight assistant">
+        <div class="assistant-panel">
+            <div class="assistant-header">
+                <div><strong>FlashFlight assistant</strong><span>Ask about your journey</span></div>
+                <button class="assistant-close" type="button" aria-label="Close assistant">&times;</button>
+            </div>
+            <div class="assistant-messages" aria-live="polite"></div>
+            <form class="assistant-form">
+                <input type="text" aria-label="Your message" placeholder="Ask about flights..." autocomplete="off"
+                    required>
+                <button type="submit" aria-label="Send message">Send</button>
+            </form>
+        </div>
+        <button class="assistant-launcher" type="button">Open assistant</button>
+    </aside>
+    <script>
+        const assistant = document.querySelector('#assistant');
+        const messages = assistant.querySelector('.assistant-messages');
+        const form = assistant.querySelector('.assistant-form');
+        const input = form.querySelector('input');
+
+        function addMessage(text, type, link) {
+            const message = document.createElement('div');
+            message.className = `assistant-message ${type}`;
+            message.textContent = text;
+            if (link) {
+                const anchor = document.createElement('a');
+                anchor.href = link;
+                anchor.target = '_blank';
+                anchor.rel = 'noreferrer';
+                anchor.textContent = 'Open schedule';
+                message.appendChild(anchor);
+            }
+            messages.appendChild(message);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        function openAgent() {
+            assistant.classList.add('is-open');
+            if (!messages.children.length) {
+                addMessage('Hi! I can help with flight bookings, schedules, routes, classes, and seats.', 'bot');
+            }
+            input.focus();
+        }
+
+        assistant.querySelector('.assistant-launcher').addEventListener('click', openAgent);
+        assistant.querySelector('.assistant-close').addEventListener('click', () => {
+            assistant.classList.remove('is-open');
+        });
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const query = input.value.trim();
+            if (!query) return;
+            addMessage(query, 'user');
+            input.value = '';
+            input.disabled = true;
+
+            try {
+                const response = await fetch('/api/dialogflow', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query })
+                });
+                if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+                const data = await response.json();
+                const link = data.richContent?.flat(2)?.flatMap((item) => item.options || [])
+                    .find((option) => option.link)?.link;
+                addMessage(data.fulfillmentText || 'I could not find an answer for that yet.', 'bot', link);
+            } catch (error) {
+                addMessage('The assistant is temporarily unavailable. Please try again in a moment.', 'bot');
+                console.error(error);
+            } finally {
+                input.disabled = false;
+                input.focus();
+            }
+        });
+
+        document.querySelectorAll('[onclick="openAgent()"]').forEach((button) => {
+            button.onclick = openAgent;
+        });
+
+        window.openAgent = openAgent;
+    </script>
+</body>
+
+</html>
